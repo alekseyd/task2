@@ -49,7 +49,7 @@ class JethroHash
         typedef _jethro_hash_iterator<Container> iterator;
         typedef _jethro_hash_const_iterator<Container> const_iterator;
 
-        JethroHash(size_t n=1000000) : vec(n) {}
+        JethroHash(size_t n=10000000) : vec(n) {}
 
         virtual size_t inc(const T&);
         virtual size_t get(const T&);
