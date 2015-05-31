@@ -59,11 +59,11 @@ size_t JethroHash<T>::inc(const T& key)
         }else{
             //if we happen to get different keys within the same bucket,
             //let's try next slot
-            if (strncmp(p->key, key.c_str(), p->length) != 0) {
+            if (strncmp(p->get_key(), key.c_str(), p->get_key_length()) != 0) {
                 continue;
             }
         }
-        count = 1 + atomic_fetch_add(&(p->count), ONE);
+        count = 1 + atomic_fetch_add(p->get_counter(), ONE);
         break;
     }
     return count;
@@ -72,7 +72,7 @@ size_t JethroHash<T>::inc(const T& key)
 template <typename T>
 size_t JethroHash<T>::get(const T& key)
 {
-    size_t count = 0;
+    uint16_t count = 0;
 
     auto hash_index = constrain_hash(key);
     for (int i = 0; i<BUCKET_SIZE; ++i) {
@@ -80,8 +80,8 @@ size_t JethroHash<T>::get(const T& key)
         if ( p == nullptr ) {
             break;
         }else{
-            if (strncmp(p->key, key.c_str(), p->length) == 0) {
-                count = p->count;
+            if (strncmp(p->get_key(), key.c_str(), p->get_key_length()) == 0) {
+                p->load_counter(count);
                 break;
             }
         }

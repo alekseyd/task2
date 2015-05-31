@@ -5,6 +5,7 @@
 #include <array>
 #include <string>
 #include <list>
+#include "table_element.hpp"
 
 template <typename T>
 class _jethro_hash_iterator : public std::iterator<std::forward_iterator_tag, typename T::value_type>
@@ -43,29 +44,6 @@ class _jethro_hash_const_iterator : public std::iterator<std::output_iterator_ta
 size_t __constrain_hash(size_t h, size_t bc)
 {
     return !(bc & (bc - 1)) ? h & (bc - 1) : h % bc;
-};
-
-class table_element{
-    private:
-        static const uint16_t zero = 0;
-        size_t bucket_id;
-        uint16_t offset;
-    public:
-        std::atomic<uint16_t> count;
-        uint16_t length;
-        char key[];
-
-        table_element(const size_t _bucket_id, const uint16_t _offset,
-                const std::string _key)
-            : bucket_id(_bucket_id), offset(_offset),
-            length(_key.size())
-        {
-            std::strncpy(this->key, _key.c_str(), length);
-            std::atomic_init(&count, zero);
-        }
-        void* operator new (size_t header_size, size_t key_size);
-        void operator delete(void* memory);
-
 };
 
 template <class T>
