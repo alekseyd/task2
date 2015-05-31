@@ -35,15 +35,6 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-
-//switching to multihreading requires implementing bulk_allocator per thread
-BulkAllocator<2*1024*1024> bulk_allocator;
-
-
-void* table_element::operator new (size_t header_size, size_t key_size)
-{
-       return bulk_allocator.get_memory_chunk(header_size + key_size);
-}
 //JethroHash
 template <class T>
 size_t JethroHash<T>::inc(const T& key)
@@ -104,11 +95,5 @@ void JethroHash<T>::clear()
 {
     Container empty_table;
     table.swap(empty_table);
-}
-
-template <typename T>
-bool JethroHash<T>::erase(const T& key)
-{
-    return true;
 }
 

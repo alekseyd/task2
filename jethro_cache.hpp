@@ -5,7 +5,6 @@
 #include <array>
 #include <string>
 #include <list>
-#include "bulk_allocator.hpp"
 
 template <typename T>
 class _jethro_hash_iterator : public std::iterator<std::forward_iterator_tag, typename T::value_type>
@@ -65,7 +64,7 @@ class table_element{
             std::atomic_init(&count, zero);
         }
         void* operator new (size_t header_size, size_t key_size);
-        void operator delete(void* memory) {/*TODO: IMPLEMENT IT!!!!*/}
+        void operator delete(void* memory);
 
 };
 
@@ -101,10 +100,9 @@ class JethroHash
 
         JethroHash(size_t bucket_count=10000000) : table(bucket_count) {}
 
-        virtual size_t inc(const T&);
-        virtual size_t get(const T&);
-        virtual bool erase(const T&);
-        virtual void clear();
+        size_t inc(const T&);
+        size_t get(const T&);
+        void clear();
 
         //iterator begin() {return iterator(vec.begin());}
         //iterator end() {return iterator(vec.end());}

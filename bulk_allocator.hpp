@@ -32,6 +32,7 @@ public:
             delete p;
         }
     }
+
     void* get_memory_chunk(const size_t size)
     {
         if (size >=PAGE_SIZE) {
@@ -45,6 +46,7 @@ public:
         used += size;
         return chunks.back()->data + offset;
     }
+
     void release_last_chunk(const size_t size)
     {
         if (size >=PAGE_SIZE || chunks.back()->used < size) {
