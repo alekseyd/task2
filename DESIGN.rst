@@ -7,8 +7,9 @@ Cache requirments:
 Hash table and bucket structure
 --------------------------------
 Each bucket contains series of pointers to equivalent elements, i.e. elements with the same hash value
-    * Initial bucket size:  3; then grow per rule:  8, 16, 32, 64, 128, 192, 256... We will take memory blocks for extending from memory pools of size 3, 5, 8, 16, 32, 64 words
-    * Memory of single bucket  is constructed thru  linked list (previous mem block finishes with pointer to the next one in the bucket or *null_ptr*)
+    * Initial bucket size:  4;
+    * **[NOT IMPLEMENTED YET]** Then grow per rule:  8, 16, 32, 64, 128, 192, 256... We will take memory blocks for extending from memory pools of size  8, 16, 32, 64 words
+    * **[NOT IMPLEMENTED YET]** Memory of single bucket will be extended thru allocating new buffer, copying contents of the old one, and releasing back to pool the old container
 
 Every bucket is indexed inside the hash table by that common hash value.
 
@@ -34,8 +35,11 @@ We wiil use pools based the on following sizes
 
 Multhreading issues
 -------------------
-  #. Reading doesn't change state of the cache, that is we have no probs running
-  #. Access for changes -- it's going to be
+  #. Reading doesn't change state of the cache, that is we have no probs with it
+  #. Access for changes
+     - key counters incrementing requires atomic arithmetics only (provided by std library as of C+11 and up)
+     - to allocate new key/counter pair while running from multiple threads can be easily implemented with atomic operations as well.  **[NOT IMPLEMENTED YET]** Main requirment is to implement memory allocation mechanism on per thread basis (will be implemented with thread local storage) When thread finishes its execution, all its memory will be transferred to the ownership of mai thread
+  #.
 
 Result output
 ------------------
@@ -43,4 +47,4 @@ Result output
         * calculate hash from key
         * in a bucket indexed by hash find walk thru the relevant pointer and jump to the element we need.
 
-  2. *bulk output* -- we can easily enumerate all the keys by walking thru ALL elements contained in the cache (they all reside inside the pools.)
+  2. **[NOT IMPLEMENTED YET - REQUIRES ITERATOR]** *bulk output* -- we can easily enumerate all the keys by walking thru ALL elements contained in the cache (they all reside inside the pools.)
