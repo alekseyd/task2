@@ -18,10 +18,13 @@ int main(int argc, char* argv[])
     h.inc("akajlknsqlkdnslkfnmldksfmls");
     h.inc("1234akajlknsqlkdnslkfnmldksfmls");
 
-    std::hash<string> str_hash;
     //for (auto &x: h) {
     //    std::cout << x.first << " -> " << x.second << " ("<< str_hash(x.first) << ")" <<endl;
     //}
+
+    for (auto &x: {"abc", "cdef", "1234akajlknsqlkdnslkfnmldksfmls","mmmmdmd"}) {
+        std::cout << x << " -> " << h.get(x) << endl;
+    }
 
     std::cout << "bucket_count = " << h.table.size() <<endl;
 
@@ -32,33 +35,39 @@ int main(int argc, char* argv[])
 }
 
 //JethroHash
-static const uint16_t one=1;
 template <class T>
 size_t JethroHash<T>::inc(const T& key)
 {
-
     auto hash_index = constrain_hash(key);
     cout << key << " -> " << constrain_hash(key) << endl;
     auto &bucket = table[hash_index];
 
     size_t count = 0;
-    for (int i = 0; i<3; ++i) {
-        table_element_16* p = atomic_load(&(table[hash_index][i]));
+    for (int i = 0; i<BUCKET_SIZE; ++i) {
+        table_element* p = atomic_load(&(table[hash_index][i]));
         if ( p == nullptr ) {
-            unique_ptr<table_element_16> np = make_unique<table_element_16>(); //make_unique_ptr
-            np->length = key.size();
-            strncpy(np->key, key.c_str(), np->length);
-            table_element_16* my_null_ptr(nullptr);
+            void* vp = operator new (sizeof(table_element)+ key.size());
+            //p  = new (vp) table_element(hash_index, i, key);
+            unique_ptr<table_element> np(new (vp) table_element(hash_index, i, key));
+            //np->length = key.size();
+            //strncpy(np->key, key.c_str(), np->length);
+            table_element* my_null_ptr(nullptr);
             if (not atomic_compare_exchange_strong(&(table[hash_index][i]), &my_null_ptr, np.get())) {
-                count = inc(key);   //try to count once again, should a slot in a bucker is already taken
-                                    //memory acquired for np will be free'd automatically
-            }else{
-                p = np.release();
-                p->bucket_id = hash_index;
-                p->offset = i;
+                return inc(key);    //try to count once again, should a slot in a bucket is already taken
+                                    //memory acquired for np will be free'd automatically thanks to unique_ptr
+            }
+            p = np.release();
+            //p->bucket_id = hash_index;
+            //p->offset = i;
+        }else{
+            //if we happen to get different key within the same bucket,
+            //let's try next slot
+            if (strncmp(p->key, key.c_str(), p->length) != 0) {
+                continue;
             }
         }
-        count = 1 + atomic_fetch_add(&(p->count), one);
+        count = 1 + atomic_fetch_add(&(p->count), ONE);
+        break;
     }
     return count;
 }
@@ -69,12 +78,12 @@ size_t JethroHash<T>::get(const T& key)
     size_t count = 0;
 
     auto hash_index = constrain_hash(key);
-    for (int i = 0; i<3; ++i) {
-        table_element_16* p = atomic_load(&(table[hash_index][i]));
+    for (int i = 0; i<BUCKET_SIZE; ++i) {
+        table_element* p = atomic_load(&(table[hash_index][i]));
         if ( p == nullptr ) {
             break;
         }else{
-            if (strncpy(p->key, key.c_str(), p->length) == 0) {
+            if (strncmp(p->key, key.c_str(), p->length) == 0) {
                 count = p->count;
                 break;
             }
@@ -85,8 +94,16 @@ size_t JethroHash<T>::get(const T& key)
 }
 
 template <typename T>
-bool JethroHash<T>::clear(const T& key)
+void JethroHash<T>::clear()
 {
+    Container empty_table;
+    table.swap(empty_table);
+}
+
+template <typename T>
+bool JethroHash<T>::erase(const T& key)
+{
+    Container empty_table;
     return true; //vec.erase(key);
 }
 
