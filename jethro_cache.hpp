@@ -4,6 +4,8 @@
 #include <atomic>
 #include <array>
 #include <string>
+#include <list>
+#include "bulk_allocator.hpp"
 
 template <typename T>
 class _jethro_hash_iterator : public std::iterator<std::forward_iterator_tag, typename T::value_type>
@@ -38,11 +40,10 @@ class _jethro_hash_const_iterator : public std::iterator<std::output_iterator_ta
         typename T::value_type& operator*() const {return *p;}
 };
 
-decltype(auto) __constrain_hash(size_t h, size_t bc)
+size_t __constrain_hash(size_t h, size_t bc)
 {
     return !(bc & (bc - 1)) ? h & (bc - 1) : h % bc;
 };
-
 
 class table_element{
     private:
@@ -62,6 +63,8 @@ class table_element{
             std::strncpy(this->key, _key.c_str(), length);
             std::atomic_init(&count, zero);
         }
+        void* operator new (size_t header_size, size_t key_size);
+        void operator delete(void* memory) {/*TODO: IMPLEMENT IT!!!!*/}
 
 };
 
@@ -73,7 +76,7 @@ class JethroHash
         static const uint16_t BUCKET_SIZE=4;
 
         std::hash<T> t_hash;
-        decltype(auto) constrain_hash (const T& key)
+        size_t constrain_hash (const T& key)
         {
             return __constrain_hash(t_hash(key), bucket_count());
         }
@@ -102,7 +105,7 @@ class JethroHash
         //iterator begin() {return iterator(vec.begin());}
         //iterator end() {return iterator(vec.end());}
 
-        decltype(auto) bucket_count () const {return table.size();}
+        typename Container::size_type bucket_count () const {return table.size();}
 
         //decltype(auto) begin() const {return const_iterator(vec.begin());}
         //auto end() const -> decltype(const_iterator(vec.end())) {return const_iterator(vec.end());} //C++11 style

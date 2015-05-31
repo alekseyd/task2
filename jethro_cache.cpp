@@ -34,6 +34,13 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+
+BulkAllocator<2*1024*1024> bulk_allocator;
+
+void* table_element::operator new (size_t header_size, size_t key_size)
+{
+       return bulk_allocator.get_memory_chunk(header_size + key_size);
+}
 //JethroHash
 template <class T>
 size_t JethroHash<T>::inc(const T& key)
@@ -46,21 +53,17 @@ size_t JethroHash<T>::inc(const T& key)
     for (int i = 0; i<BUCKET_SIZE; ++i) {
         table_element* p = atomic_load(&(table[hash_index][i]));
         if ( p == nullptr ) {
-            void* vp = operator new (sizeof(table_element)+ key.size());
-            //p  = new (vp) table_element(hash_index, i, key);
-            unique_ptr<table_element> np(new (vp) table_element(hash_index, i, key));
-            //np->length = key.size();
-            //strncpy(np->key, key.c_str(), np->length);
+            //void* vp = operator new (sizeof(table_element) + key.size());
+            //unique_ptr<table_element> np(new (vp) table_element(hash_index, i, key));
+            unique_ptr<table_element> np(new (key.size()) table_element(hash_index, i, key));
             table_element* my_null_ptr(nullptr);
             if (not atomic_compare_exchange_strong(&(table[hash_index][i]), &my_null_ptr, np.get())) {
                 return inc(key);    //try to count once again, should a slot in a bucket is already taken
                                     //memory acquired for np will be free'd automatically thanks to unique_ptr
             }
             p = np.release();
-            //p->bucket_id = hash_index;
-            //p->offset = i;
         }else{
-            //if we happen to get different key within the same bucket,
+            //if we happen to get different keys within the same bucket,
             //let's try next slot
             if (strncmp(p->key, key.c_str(), p->length) != 0) {
                 continue;
@@ -103,7 +106,6 @@ void JethroHash<T>::clear()
 template <typename T>
 bool JethroHash<T>::erase(const T& key)
 {
-    Container empty_table;
-    return true; //vec.erase(key);
+    return true;
 }
 
