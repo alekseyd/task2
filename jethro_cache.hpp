@@ -40,6 +40,7 @@ class _jethro_hash_const_iterator : public std::iterator<std::output_iterator_ta
         typename T::value_type& operator*() const {return *p;}
 };
 
+//taken from STL
 size_t __constrain_hash(size_t h, size_t bc)
 {
     return !(bc & (bc - 1)) ? h & (bc - 1) : h % bc;
@@ -73,6 +74,9 @@ class JethroHash
 {
     private:
         static const uint16_t ONE=1;
+        //array based solution is a simpliest implementation of buckets in hash map.
+        //TODO: implement extencible solution, that can grow dynamically as more
+        //key collitions occur
         static const uint16_t BUCKET_SIZE=4;
 
         std::hash<T> t_hash;

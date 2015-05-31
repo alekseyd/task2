@@ -9,6 +9,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     JethroHash<string> h;
+    //TESTING is done here so far
 
     std::cout << "bucket_count = " << h.table.size() <<endl;
 
@@ -35,7 +36,9 @@ int main(int argc, char* argv[])
 }
 
 
+//switching to multihreading requires implementing bulk_allocator per thread
 BulkAllocator<2*1024*1024> bulk_allocator;
+
 
 void* table_element::operator new (size_t header_size, size_t key_size)
 {
