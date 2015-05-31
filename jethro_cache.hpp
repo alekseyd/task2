@@ -4,7 +4,6 @@
 #include <atomic>
 #include <array>
 #include <string>
-#include <list>
 #include "table_element.hpp"
 
 template <typename T>
@@ -62,19 +61,17 @@ class JethroHash
             return __constrain_hash(t_hash(key), bucket_count());
         }
 
+    public:
+        typedef std::vector<std::array<std::atomic<table_element*>, BUCKET_SIZE>> Table;
+        //typedef std::unordered_map<T, int>  SetTable;
 
-    public:
-        typedef std::vector<std::array<std::atomic<table_element*>, BUCKET_SIZE>> Container;
-        //typedef std::unordered_map<T, int>  SetContainer;
-    public:
-        //SetContainer vec;
-        Container table;
+        //SetTable vec;
+        Table table;
 
-    public:
         //typedef std::pair<T, size_t> value_type;
         typedef table_element value_type;
-        //typedef _jethro_hash_iterator<SetContainer> iterator;
-        //typedef _jethro_hash_const_iterator<SetContainer> const_iterator;
+        //typedef _jethro_hash_iterator<SetTable> iterator;
+        //typedef _jethro_hash_const_iterator<SetTable> const_iterator;
 
         JethroHash(size_t bucket_count=10000000) : table(bucket_count) {}
 
@@ -85,7 +82,7 @@ class JethroHash
         //iterator begin() {return iterator(vec.begin());}
         //iterator end() {return iterator(vec.end());}
 
-        typename Container::size_type bucket_count () const {return table.size();}
+        typename Table::size_type bucket_count () const {return table.size();}
 
         //decltype(auto) begin() const {return const_iterator(vec.begin());}
         //auto end() const -> decltype(const_iterator(vec.end())) {return const_iterator(vec.end());} //C++11 style

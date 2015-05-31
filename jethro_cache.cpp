@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     std::cout << "bucket_count = " << h.table.size() <<endl;
 
 //----------------------------------
-    std::cout << sizeof(typename JethroHash<string>::Container::value_type)<<endl;
+    std::cout << sizeof(typename JethroHash<string>::Table::value_type)<<endl;
 
     return 0;
 }
@@ -93,7 +93,7 @@ size_t JethroHash<T>::get(const T& key)
 template <typename T>
 void JethroHash<T>::clear()
 {
-    Container empty_table;
+    Table empty_table;
     table.swap(empty_table);
 }
 
