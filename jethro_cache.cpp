@@ -1,13 +1,16 @@
-#include "jethro_cache.hpp"
 #include <iostream>
 #include <string>
 #include <cstring>
 #include <memory>
+#include <thread>
+#include "jethro_cache.hpp"
+#include "bulk_allocator.hpp"
 
 using namespace std;
 
 int main(int argc, char* argv[])
 {
+    init_allocator();
     JethroHash<string> h;
     //TESTING is done here so far
 

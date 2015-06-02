@@ -63,15 +63,11 @@ class JethroHash
 
     public:
         typedef std::vector<std::array<std::atomic<table_element*>, BUCKET_SIZE>> Table;
-        //typedef std::unordered_map<T, int>  SetTable;
-
-        //SetTable vec;
         Table table;
 
-        //typedef std::pair<T, size_t> value_type;
         typedef table_element value_type;
-        //typedef _jethro_hash_iterator<SetTable> iterator;
-        //typedef _jethro_hash_const_iterator<SetTable> const_iterator;
+        typedef _jethro_hash_iterator<Table> iterator;
+        typedef _jethro_hash_const_iterator<Table> const_iterator;
 
         JethroHash(size_t bucket_count=10000000) : table(bucket_count) {}
 
