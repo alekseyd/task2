@@ -1,6 +1,6 @@
 #include <unordered_map>
 #include <vector>
-//#include <iterator>
+#include <iterator>
 #include <atomic>
 #include <array>
 #include <string>
@@ -52,7 +52,7 @@ class JethroHash
         static const uint16_t ONE=1;
         //array based solution is a simpliest implementation of buckets in hash map.
         //TODO: implement extencible solution, that can grow dynamically as more
-        //key collitions occur
+        //key collisons occur
         static const uint16_t BUCKET_SIZE=4;
 
         std::hash<T> t_hash;
@@ -62,12 +62,13 @@ class JethroHash
         }
 
     public:
+        static const uint16_t zero = 0;
         typedef std::vector<std::array<std::atomic<table_element*>, BUCKET_SIZE>> Table;
         Table table;
 
         typedef table_element value_type;
-        typedef _jethro_hash_iterator<Table> iterator;
-        typedef _jethro_hash_const_iterator<Table> const_iterator;
+        //typedef _jethro_hash_iterator<table_element, BulkAllocator> iterator;
+        //typedef _jethro_hash_const_iterator<table_element, BulkAllocator> const_iterator;
 
         JethroHash(size_t bucket_count=10000000) : table(bucket_count) {}
 

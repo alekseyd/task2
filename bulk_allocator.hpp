@@ -65,5 +65,6 @@ public:
     }
 };
 
+typedef BulkAllocator<2*1024*1024> BulkAllocatorType;
 void init_allocator();
-BulkAllocator<2*1024*1024>& get_allocator();
+BulkAllocatorType& get_allocator();

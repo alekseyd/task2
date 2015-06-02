@@ -5,7 +5,7 @@
 #include "bulk_allocator.hpp"
 
 using namespace std;
-map<thread::id, BulkAllocator<2*1024*1024>> allocator_map;
+map<thread::id, BulkAllocatorType> allocator_map;
 mutex allocator_init_mutex;
 
 void  init_allocator()
@@ -17,7 +17,7 @@ void  init_allocator()
 
 }
 
-BulkAllocator<2*1024*1024>& get_allocator()
+BulkAllocatorType& get_allocator()
 {
     /*thread_local*/ thread::id this_id = this_thread::get_id();
     return allocator_map.at(this_id);

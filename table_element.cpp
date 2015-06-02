@@ -2,7 +2,7 @@
 #include "bulk_allocator.hpp"
 
 //switching to multihreading requires implementing bulk_allocator per thread
-BulkAllocator<2*1024*1024> bulk_allocator;
+//BulkAllocator<2*1024*1024> bulk_allocator;
 
 
 void* table_element::operator new (size_t header_size, size_t key_size)
